@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+
+/* *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    background: #297EA6;
+}
+.navbar{
+    width: 100%;
+    height: 200px;
+    background: #01121f;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    justify-content: space-around;
+    color: aliceblue;
+} */

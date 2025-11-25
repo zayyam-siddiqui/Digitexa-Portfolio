@@ -1,0 +1,1148 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Digitexa Portfolio</title>
+  <link rel="stylesheet" href="./output.css" />
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+  <link rel="icon" href="Images/favicon.png" type="image/x-icon" />
+
+  <!-- Three.js & Vanta.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+
+  <style>
+    html,
+    body {
+      background: #02263f;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      /* Hide scroll during loading */
+      height: 100%;
+      /* Optional: ensure body fills viewport */
+      scroll-behavior: smooth;
+    }
+
+    body.loaded {
+      overflow: auto;
+      /* Restore scrolling */
+    }
+
+    /* For Chrome, Edge, Safari */
+    ::-webkit-scrollbar {
+      width: 10px;
+      /* width of scrollbar */
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #021b2c;
+      /* dark track color */
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #444;
+      /* thumb (scroll handle) color */
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #666;
+      /* thumb hover color */
+    }
+
+    /* For Firefox */
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: #444 #021b2c;
+      /* thumb color, track color */
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      width: 100%;
+    }
+
+    .section-title {
+      font-size: 2.25rem;
+      /* text-4xl */
+      color: white;
+      text-align: center;
+      padding-bottom: 40px;
+      font-weight: bold;
+    }
+
+    #reviewForm {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+    }
+
+    #reviewForm input,
+    #reviewForm select,
+    #reviewForm textarea {
+      width: 80%;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #244257;
+      color: white;
+      border-radius: 12px;
+      outline: none;
+      border: none;
+    }
+
+    #reviewForm select option {
+      background-color: #244257;
+      color: white;
+    }
+
+    #reviewForm button {
+      width: 80%;
+      padding: 12px;
+      font-size: 18px;
+      background-color: #244257;
+      color: white;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.3s ease;
+    }
+
+    #reviewForm button:hover {
+      background-color: #406f8a;
+    }
+
+    #reviewsSection {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      width: 80%;
+      padding-bottom: 40px;
+      margin-top: 50px;
+      background-color: #244257;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    #reviewsSection h2 {
+      font-size: 1.875rem;
+      /* text-3xl */
+      color: white;
+      text-align: center;
+      padding-bottom: 20px;
+      font-weight: bold;
+    }
+
+    #reviewsList {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* Centers horizontally */
+      color: white;
+      max-height: 50vh;
+      overflow-y: auto;
+      padding-right: 8px;
+      width: 100%;
+      scrollbar-width: thin;
+      scrollbar-color: gray transparent;
+    }
+
+    /* Style each review item */
+    #reviewsList .review {
+      width: 100%;
+      text-align: left;
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Remove border for last review */
+    #reviewsList .review:last-child {
+      border-bottom: none;
+    }
+
+    /* Custom scrollbar for Webkit */
+    #reviewsList::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #reviewsList::-webkit-scrollbar-thumb {
+      background-color: gray;
+      border-radius: 4px;
+    }
+
+    #reviewsList::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    /* Custom scrollbar for Webkit */
+    #reviewsList::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #reviewsList::-webkit-scrollbar-thumb {
+      background-color: gray;
+      border-radius: 4px;
+    }
+
+    #reviewsList::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    /* Loader container: full screen center */
+    /* Fullscreen Loader Container */
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #02263f;
+      /* background color */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    /* Stylish Pulse Loader */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #3498db, #8e44ad);
+      border-radius: 50%;
+      box-shadow: 0 0 15px rgba(52, 152, 219, 0.6);
+      animation: pulse 1s infinite ease-in-out;
+    }
+
+    /* Pulse Animation */
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(0.9);
+        box-shadow: 0 0 15px rgba(142, 68, 173, 0.5);
+      }
+
+      50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 25px rgba(52, 152, 219, 0.8);
+      }
+    }
+
+    /* HTML: <div class="loader"></div> */
+    /* HTML: <div class="loader"></div> */
+    .loader {
+      width: 40px;
+      aspect-ratio: 1;
+      color: #00bfff;
+      position: relative;
+      background: conic-gradient(from 134deg at top,
+          currentColor 92deg,
+          #0000 0) top,
+        conic-gradient(from -46deg at bottom, currentColor 92deg, #0000 0) bottom;
+      background-size: 100% 50%;
+      background-repeat: no-repeat;
+    }
+
+    .loader:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      --g: currentColor 14.5px, #0000 0 calc(100% - 14.5px), currentColor 0;
+      background: linear-gradient(45deg, var(--g)),
+        linear-gradient(-45deg, var(--g));
+      animation: l7 1.5s infinite cubic-bezier(0.3, 1, 0, 1);
+    }
+
+    @keyframes l7 {
+      33% {
+        inset: -10px;
+        transform: rotate(0deg);
+      }
+
+      66% {
+        inset: -10px;
+        transform: rotate(90deg);
+      }
+
+      100% {
+        inset: 0;
+        transform: rotate(90deg);
+      }
+    }
+
+    /* Typing effect */
+    @keyframes typing {
+      from {
+        width: 0;
+      }
+
+      to {
+        width: 100%;
+      }
+    }
+
+    @keyframes blink {
+      50% {
+        border-color: transparent;
+      }
+    }
+
+    .typewriter h1 {
+      overflow: hidden;
+      margin-inline: auto;
+      white-space: nowrap;
+      border-right: 3px solid;
+      animation: typing 3s steps(19) forwards, blink 1s step-end infinite;
+    }
+
+    /* Fade in animation */
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in-up {
+      opacity: 0;
+    }
+
+    .fade-in-up.visible {
+      animation: fadeInUp 2s ease forwards;
+    }
+
+    /* Neon button glow */
+    .neon-glow {
+      background-color: #0582b4;
+      color: white;
+      box-shadow: 0 0 5px #c8e8ff, 0 0 10px #c8e8ff, 0 0 20px #c8e8ff,
+        0 0 40px #c8e8ff;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .neon-glow:hover {
+      box-shadow: 0 0 10px #00f5d4, 0 0 20px #00bfff, 0 0 30px #00f5d4,
+        0 0 60px #00bfff;
+      background-color: rgb(6, 127, 148);
+      color: #00f5d4;
+    }
+
+    .my-element {
+      background-color: rgba(1, 29, 48, 0.596);
+      /* #021b2c with 70% opacity */
+      backdrop-filter: blur(12px);
+      /* md blur in Tailwind = 12px */
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      /* full viewport height */
+      overflow: hidden;
+    }
+
+    .bg-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      /* stack heading above video */
+      justify-content: space-between;
+      /* space evenly in wrapper height */
+      align-items: center;
+      height: 100%;
+      /* make content same height as wrapper */
+      padding: 40px 20px;
+      /* optional spacing from top/bottom */
+      z-index: 1;
+    }
+
+    .videohead {
+      color: white;
+      font-size: 2.25rem;
+      font-weight: 400;
+      text-align: center;
+      margin-top: 3px;
+      margin-bottom: 5px;
+      /* optional, controlled by padding */
+    }
+
+    .videohead span {
+      color: #f59e0b;
+      padding: 0 4px;
+      font-size: 2.25rem;
+      font-weight: 400;
+    }
+
+    .main-video {
+      flex: 1;
+      /* take all available vertical space in .content */
+      width: auto;
+      /* adjust width automatically */
+
+      /* optional, prevents being too wide on large screens */
+      height: 90%;
+      /* fill vertical space */
+      object-fit: cover;
+      /* cover its container proportionally */
+      border-radius: 18px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (max-width: 600px) {
+
+      .main-video {
+        width: 95%;
+      }
+
+      .videohead {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* whatsapp button */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    #wpfloat {
+      display: none;
+    }
+
+    .whatsapp-label {
+      background-color: #21981c;
+      color: #ffffff;
+      font-size: 17px;
+      padding: 10px 20px;
+      border-radius: 25px;
+      margin-right: 10px;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateX(10px);
+      transition: all 0.3s ease;
+      font-weight: 400;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .whatsapp-float:hover .whatsapp-label {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .whatsapp-float img {
+      background-color: white;
+      width: 47px;
+      height: 47px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      cursor: pointer;
+      transition: transform 1s ease;
+    }
+
+    .whatsapp-float:hover .whatsapp-label {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .whatsapp-float:hover img {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body class="loaded">
+  <!-- Loading Spinner -->
+  <div id="loader" style="text-align: center">
+    <!-- <div class="spinner"></div> -->
+    <div class="loader"></div>
+  </div>
+  <div id="home" class="afterloader">
+    <!-- HEADER SECTION -->
+    <div id="vanta-bg" class="relative min-h-screen w-full overflow-hidden">
+      <!-- Navbar -->
+      <nav
+        class="my-element fixed top-5 left-1/2 -translate-x-1/2 max-w-[900px] w-[90%] flex justify-between items-center text-white rounded-3xl px-4 md:px-6 py-3 h-[76px] md:h-[75px] z-[999]">
+        <div>
+          <img class="h-[50px] sm:h-[60px]" src="Images/digitexalogo.png" alt="Digitexa Logo" />
+        </div>
+        <ul class="hidden md:flex justify-between items-center gap-9 text-[18px] font-semibold">
+          <li>
+            <a class="hover:text-amber-400 transition-colors duration-300" href="#home">Home</a>
+          </li>
+          <li>
+            <a class="hover:text-amber-400 transition-colors duration-300" href="#portfolio">Portfolio</a>
+          </li>
+          <li>
+            <a class="hover:text-amber-400 transition-colors duration-300" href="#about">About Us</a>
+          </li>
+          <li>
+            <a class="hover:text-amber-400 transition-colors duration-300" href="#contactus">Contact Us</a>
+          </li>
+        </ul>
+        <div id="burger" class="text-[28px] font-bold cursor-pointer md:hidden">
+          ☰
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu"
+          class="my-element absolute top-full right-0 text-white rounded-3xl mt-2 px-6 py-4 z-[998] w-full shadow-lg md:hidden opacity-0 scale-y-0 origin-top transform transition-all duration-500 ease-in-out pointer-events-none">
+          <ul class="flex flex-col text-center gap-7 text-lg font-semibold">
+            <li>
+              <a class="hover:text-amber-400 transition-colors duration-300" href="#home">Home</a>
+            </li>
+            <li>
+              <a class="hover:text-amber-400 transition-colors duration-300" href="#portfolio">Portfolio</a>
+            </li>
+            <li>
+              <a class="hover:text-amber-400 transition-colors duration-300" href="#about">About Us</a>
+            </li>
+            <li>
+              <a class="hover:text-amber-400 transition-colors duration-300" href="#contactus">Contact Us</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- Hero Section -->
+      <div
+        class="relative z-10 flex xl:flex-row flex-col items-center justify-center text-center text-white px-4 min-h-screen">
+        <div class="typewriter flex flex-col items-center justify-center mt-[50px] sm:mt-[200px] xl:mt-[0px]">
+          <h1 class="text-[30px] sm:text-[37px] md:text-[55px] font-bold drop-shadow-lg">
+            <span
+              class="bg-clip-text text-transparent bg-gradient-to-r from-[rgb(173,255,230)] via-[rgb(102,204,255)] to-[rgb(51,153,255)]">
+              WELCOME TO DIGITEXA
+            </span>
+          </h1>
+          <p class="mt-4 font-[18px] sm:text-xl max-w-2xl animate-fadeIn delay-500 text-amber-400">
+            We build modern websites, design stunning graphics, and manage
+            YouTube channels with creativity and precision.
+          </p>
+        </div>
+        <img
+          class="2xl:h-[600px] lg:h-[550px] md:h-[450] lg:mt-7 h-[350] mt-1.5 sm:mt-3 md:mt-4 relative z-20 opacity-80"
+          src="Images/herosection.png" alt="Hero Image" />
+      </div>
+    </div>
+    <!-- HEADER SECTION END -->
+
+    <!-- PROFILE INTRO -->
+    <main id="portfolio" class="mx-[20px] my-[70px] flex justify-center items-center">
+      <div
+        class="fade-in-up flex lg:flex-row flex-col justify-center border border-transparent rounded-4xl text-[#ecebeb] bg-white/15 backdrop-blur-md w-[95%] sm:w-[80%] lg:w-[88%] xl:w-[80%] 2xl:w-[70%] py-[40px] px-[40px] lg:px-0 gap-3 hover:bg-white/10 hover:text-white fade-in-up">
+        <div
+          class="flex justify-center items-center w-full lg:w-[40%] border-b lg:border-b-0 lg:border-r border-[#727272] pb-[50px]">
+          <img class="rounded-[50%] lg:px-[50px]" src="Images/AZan.png" alt="" />
+        </div>
+        <div class="flex flex-col justify-center items-center lg:items-start w-full lg:w-[60%] pt-50px lg:px-[50px]">
+          <h1 class="text-center lg:text-left sm:text-4xl text-[24px] font-bold pt-[30px]">
+            AZAN ALI SIDDIQUI
+          </h1>
+          <h3 class="text-center lg:text-left sm:text-[17px] text-[15px] italic pt-1 text-amber-500">
+            Founder & Lead Digital Strategist at Digitexa
+          </h3>
+          <p class="text-center lg:text-left pt-7 sm:text-[19px] text-[16px]">
+            I’m the founder of Digitexa, where creativity meets strategy to
+            deliver powerful digital solutions. From sleek websites to
+            engaging visuals and targeted marketing, I help brands stand out
+            and grow. My mission is simple - turn your ideas into experiences
+            that inspire, connect, and convert.
+          </p>
+        </div>
+      </div>
+    </main>
+    <!-- PROFILE INTRO -->
+
+    <!-- MAIN SECTION -->
+
+    <main class="mx-[20px] my-[70px] flex justify-center items-center">
+      <div
+        class="fade-in-up flex flex-col justify-center border border-transparent rounded-4xl text-[#ecebeb] bg-white/15 backdrop-blur-md w-[90%] sm:w-[85%] md:w-[70%] px-8 py-9 gap-3 hover:bg-white/10 hover:text-white">
+        <h1 class="text-3xl font-bold">Your Digital Growth Partner</h1>
+        <p>
+          At DIGITEXA, we combine creativity, technology, and strategy to help
+          your business stand out and grow online. From concept to execution,
+          we deliver impactful, results-driven solutions tailored to your
+          goals.
+        </p>
+        <h3 class="text-2xl font-bold">Here’s what we offer:</h3>
+        <ul class="">
+          <li>
+            💻 Website Building – Modern, responsive, and conversion-focused
+            websites.
+          </li>
+          <li>
+            🎨 Graphics & Video Editing – Eye-catching visuals and
+            professional video production.
+          </li>
+          <li>
+            📱 Social Media Marketing (SMMA) – Targeted campaigns to grow your
+            online presence.
+          </li>
+          <li>
+            🎥 Video Editing – Engaging edits to tell your brand’s story.
+          </li>
+          <li>
+            📊 YouTube Channel Handling – Strategy, content management, and
+            growth optimization.
+          </li>
+        </ul>
+      </div>
+    </main>
+    <!-- MAIN SECTION -->
+    <!-- MAIN SECTION -->
+
+    <main class="mx-[0px] my-[70px] flex flex-col lg:flex-row justify-center items-center gap-7">
+      <!-- Clients -->
+      <div
+        class="fade-in-up flex flex-col justify-center items-center border border-transparent rounded-4xl text-[#ecebeb] bg-white/15 backdrop-blur-md w-[45%] lg:w-[30%] px-8 py-9 gap-3 hover:bg-white/10 hover:text-white">
+        <h1 class="text-4xl font-extrabold counter text-amber-500" data-target="27">
+          0
+        </h1>
+        <h2 class="text-2xl font-bold">CLIENTS</h2>
+      </div>
+
+      <!-- Projects -->
+      <div
+        class="fade-in-up flex flex-col justify-center items-center border border-transparent rounded-4xl text-[#ecebeb] bg-white/15 backdrop-blur-md w-[45%] lg:w-[30%] px-8 py-9 gap-3 hover:bg-white/10 hover:text-white">
+        <h1 class="text-4xl font-extrabold counter text-amber-500" data-target="147">
+          0
+        </h1>
+        <h2 class="text-2xl font-bold">PROJECTS</h2>
+      </div>
+
+      <!-- Years -->
+      <div
+        class="fade-in-up flex flex-col justify-center items-center border border-transparent rounded-4xl text-[#ecebeb] bg-white/15 backdrop-blur-md w-[45%] lg:w-[30%] px-8 py-9 gap-3 hover:bg-white/10 hover:text-white">
+        <h1 class="text-4xl font-extrabold counter text-amber-500" data-target="2">
+          0
+        </h1>
+        <h2 class="text-2xl font-bold">YEARS</h2>
+      </div>
+    </main>
+    <div class="fade-in-up video-wrapper">
+      <!-- Background video -->
+      <video autoplay loop muted playsinline class="bg-video">
+        <source src="Images/videobg.mp4" type="video/mp4">
+      </video>
+
+      <!-- Content on top -->
+      <div class="content">
+        <div class="videohead">Through My <span>Creative</span> Lens</div>
+        <video src="Images/projectvid.mp4" autoplay loop muted playsinline class="main-video"></video>
+      </div>
+    </div>
+
+
+    <!-- MAIN SECTION -->
+    <main class="mx-[0px] my-[70px] flex flex-wrap justify-center gap-7">
+      <div
+        class="fade-in-up flex flex-col justify-between items-center border border-transparent rounded-4xl text-[#ecebeb] bg-white/15 backdrop-blur-md w-[90%] sm:w-[45%] lg:w-[30%] gap-3 hover:bg-white/10 hover:text-white">
+        <img src="Images/website.jpg" alt="" class="rounded-t-4xl" />
+        <h1 class="text-center text-2xl lg:text-3xl font-bold px-8 py-4 text-amber-500">
+          Website Building
+        </h1>
+        <p class="text-center px-8 pb-9 lg:text-[18px]">
+          We design and develop modern, responsive websites tailored to your
+          brand. Whether it’s a sleek portfolio, an e-commerce store, or a
+          corporate site, our goal is to create a powerful online presence
+          that engages visitors, boosts conversions, and enhances your brand’s
+          identity.
+        </p>
+      </div>
+
+      <div
+        class="fade-in-up flex flex-col justify-between items-center border border-transparent rounded-4xl text-[#ecebeb] bg-white/15 backdrop-blur-md w-[90%] sm:w-[45%] lg:w-[30%] gap-3 hover:bg-white/10 hover:text-white">
+        <img src="Images/graphics.jpg" alt="" class="rounded-t-4xl" />
+        <h1 class="text-center text-2xl lg:text-3xl font-bold px-8 py-4 text-amber-500">
+          Graphics & Video Editing
+        </h1>
+        <p class="text-center px-8 pb-9 lg:text-[18px]">
+          Our creative team brings your ideas to life with eye-catching
+          designs and professional video edits. From logos and banners to
+          promotional videos, we ensure every visual element reflects your
+          brand’s personality while maintaining high-quality production
+          standards.
+        </p>
+      </div>
+
+      <div
+        class="fade-in-up flex flex-col justify-between items-center border border-transparent rounded-4xl text-[#ecebeb] bg-white/15 backdrop-blur-md w-[90%] sm:w-[45%] lg:w-[30%] gap-3 hover:bg-white/10 hover:text-white">
+        <img src="Images/smm.jpg" alt="" class="rounded-t-4xl" />
+        <h1 class="text-center text-2xl lg:text-3xl font-bold px-8 py-4 text-amber-500">
+          Social Media Marketing (SMMA)
+        </h1>
+        <p class="text-center px-8 pb-9 lg:text-[18px]">
+          We help you grow your online presence through targeted social media
+          strategies. From content creation to ad campaigns, we use
+          data-driven techniques to reach the right audience, increase
+          engagement, and boost brand awareness across platforms like
+          Facebook, Instagram, and TikTok.
+        </p>
+      </div>
+
+      <div
+        class="fade-in-up flex flex-col justify-between items-center border border-transparent rounded-4xl text-[#ecebeb] bg-white/15 backdrop-blur-md w-[90%] sm:w-[45%] lg:w-[30%] gap-3 hover:bg-white/10 hover:text-white">
+        <img src="Images/videoediting.jpg" alt="" class="rounded-t-4xl" />
+        <h1 class="text-center text-2xl lg:text-3xl font-bold px-8 py-4 text-amber-500">
+          Video Editing
+        </h1>
+        <p class="text-center px-8 pb-9 lg:text-[18px]">
+          We craft compelling videos that captivate your audience and tell
+          your story effectively. Whether it’s promotional content, tutorials,
+          vlogs, or short-form videos for social media, we focus on editing
+          that keeps viewers engaged, and leaves a lasting impression that
+          drives action.
+        </p>
+      </div>
+
+      <div
+        class="fade-in-up flex flex-col justify-between items-center border border-transparent rounded-4xl text-[#ecebeb] bg-white/15 backdrop-blur-md w-[90%] sm:w-[45%] lg:w-[30%] gap-3 hover:bg-white/10 hover:text-white">
+        <img src="Images/youtube.jpg" alt="" class="rounded-t-4xl" />
+        <h1 class="text-center text-2xl lg:text-3xl font-bold px-8 py-4 text-amber-500">
+          YouTube Channel Handling
+        </h1>
+        <p class="text-center px-8 pb-9 lg:text-[18px]">
+          From strategy to execution, we manage every aspect of your YouTube
+          channel. Our services include video optimization, thumbnail design,
+          keyword research, and posting schedules — all aimed at boosting
+          views, increasing subscribers, and building a loyal audience around
+          your content.
+        </p>
+      </div>
+    </main>
+
+    <!-- CUSTOMER REVIEWS -->
+    <div id="app" class="fade-in-up">
+      <h2 class="section-title">Leave a Review</h2>
+
+      <!-- Form container -->
+      <form id="reviewForm">
+        <input type="text" id="name" placeholder="Your Name" required autocomplete="off" />
+
+        <select id="rating" required>
+          <option value="">Select Below</option>
+          <option value="⭐">⭐</option>
+          <option value="⭐⭐">⭐⭐</option>
+          <option value="⭐⭐⭐">⭐⭐⭐</option>
+          <option value="⭐⭐⭐⭐">⭐⭐⭐⭐</option>
+          <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
+        </select>
+
+        <textarea id="review" placeholder="Write your review..." required></textarea>
+
+        <button type="submit">Submit</button>
+      </form>
+
+      <!-- Reviews Section -->
+      <div id="reviewsSection">
+        <h2 class="section-title">Customer Reviews</h2>
+        <div id="reviewsList"></div>
+      </div>
+    </div>
+
+    <!-- ABBOUT SECTION -->
+    <div id="about"
+      class="fade-in-up bg-[#01192c] text-[#d6d5d5] px-[70px] py-[50px] md:px-[100px] md:py-[50px] justify-center items-center text-center flex flex-col">
+      <div
+        class="relative flex flex-col justify-center items-center w-[80%] rounded-4xl h-[150px] bg-cover bg-center overflow-hidden">
+        <!-- Background Image -->
+        <div class="absolute inset-0 bg-[url('Images/ABOUTUS.jpg')] bg-cover bg-center opacity-30"></div>
+
+        <!-- Text -->
+        <h1 class="relative z-10 w-full text-4xl md:text-5xl font-bold text-white">
+          ABOUT US
+        </h1>
+      </div>
+
+      <div class="border-b-1 border-[#727272] pb-[20px] pt-[20px]">
+        <h2 class="text-2xl md:text-3xl font-semibold text-amber-500">
+          Who We Are
+        </h2>
+        <p class="text-[15px] md:text-[17px]">
+          Digitexa is a creative and results-driven digital solutions brand,
+          dedicated to helping businesses, content creators, and entrepreneurs
+          grow their presence in today’s competitive online world. We
+          specialize in delivering high-quality, tailored services in Website
+          Building, Graphics & Video Editing, Social Media Marketing, YouTube
+          Channel Management, and more — all designed to make your brand stand
+          out.
+        </p>
+      </div>
+
+      <div class="border-b-1 border-[#727272] pt-[20px] pb-[20px]">
+        <h2 class="text-2xl md:text-3xl font-semibold text-amber-500">
+          Our Story
+        </h2>
+        <p class="text-[15px] md:text-[17px]">
+          Founded by Azan Ali Siddiqui, a passionate and skilled digital
+          creator, Digitexa was born from a vision to merge creativity with
+          technology. What began as a small idea soon turned into a
+          full-fledged digital services brand, delivering modern, visually
+          stunning, and highly functional solutions for clients worldwide.
+        </p>
+      </div>
+
+      <div class="border-b-1 border-[#727272] pt-[20px] pb-[20px]">
+        <h2 class="text-2xl md:text-3xl font-semibold text-amber-500">
+          Our Mission
+        </h2>
+        <p class="text-[15px] md:text-[17px]">
+          To empower brands and creators with digital solutions that inspire,
+          engage, and drive growth.
+        </p>
+      </div>
+
+      <div class="border-b-1 border-[#727272] pt-[20px] pb-[20px]">
+        <h2 class="text-2xl md:text-3xl font-semibold text-amber-500">
+          Our Vision
+        </h2>
+        <p class="text-[15px] md:text-[17px]">
+          To become a global creative hub where ideas transform into impactful
+          digital experiences.
+        </p>
+      </div>
+
+      <div class="border-b-1 border-[#727272] pt-[20px] pb-[20px]">
+        <h2 class="text-2xl md:text-3xl font-semibold text-amber-500">
+          Our Core Values
+        </h2>
+        <ul class="text-[15px] md:text-[17px]">
+          <li>
+            Creativity First – Every project starts with a fresh, innovative
+            approach.
+          </li>
+          <li>Client-Centered – Your vision is our priority.</li>
+          <li>
+            Excellence Always – We aim for quality that speaks for itself.
+          </li>
+          <li>
+            Growth-Driven – Every solution is designed to help you move
+            forward.
+          </li>
+          <li>
+            Transparency & Trust – Open communication and honesty in all
+            dealings.
+          </li>
+        </ul>
+      </div>
+
+      <div class="border-b-1 border-[#727272] pt-[20px] pb-[20px]">
+        <h2 class="text-2xl md:text-3xl font-semibold text-amber-500">
+          Founder’s Message
+        </h2>
+        <p class="text-[15px] md:text-[17px]">
+          Hi, I’m Azan Ali Siddiqui, the founder of Digitexa. I started this
+          brand with the belief that great digital work doesn’t have to be
+          complicated or out of reach. My passion for creativity and
+          technology drives everything we do here. I’m personally committed to
+          ensuring every client feels valued, understood, and delighted with
+          the results.
+        </p>
+      </div>
+
+      <div class="border-b-1 border-[#727272] pt-[20px] pb-[20px]">
+        <h2 class="text-2xl md:text-3xl font-semibold text-amber-500">
+          What We Do
+        </h2>
+        <ul class="text-[15px] md:text-[17px]">
+          <li>
+            We don’t just create designs or campaigns — we create experiences.
+            Our services include:
+          </li>
+          <li>
+            Website Building – Modern, responsive, and high-performing sites.
+          </li>
+          <li>
+            Graphics & Video Editing – Stunning visuals and engaging edits.
+          </li>
+          <li>
+            Social Media Marketing – Strategies that grow your audience and
+            influence.
+          </li>
+          <li>Video Editing – Compelling content that tells your story.</li>
+          <li>
+            YouTube Channel Handling – Complete channel growth and management
+            solutions.
+          </li>
+        </ul>
+      </div>
+
+      <div class="pt-[20px]">
+        <h2 class="text-2xl md:text-3xl font-semibold text-amber-500">
+          Our Process
+        </h2>
+        <ul class="text-[15px] md:text-[17px]">
+          <li>Discovery – Understanding your goals and needs.</li>
+          <li>Planning – Crafting a tailored strategy.</li>
+          <li>Execution – Designing, building, and creating.</li>
+          <li>
+            Delivery & Support – Launching and assisting you post-project.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- FOOTER (CONTACT US) -->
+    <section id="contactus" class="fade-in-up relative w-full p-8 overflow-hidden">
+      <!-- Background Video -->
+      <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
+        <source src="Images/contactus1.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      <!-- Overlay for better readability -->
+      <div class="absolute inset-0 bg-black/50"></div>
+
+      <!-- Contact Content -->
+      <div class="relative z-10 w-[100%] md:w-[75%] mx-auto p-10 rounded-[30px] bg-transparent text-white">
+        <h2 class="text-center font-semibold text-5xl tracking-[0.5px]">
+          Contact Us
+        </h2>
+        <ul class="flex flex-col justify-center items-center list-none my-[50px]">
+          <li class="text-[20px] flex items-center">
+            <i class="fas fa-phone-alt p-4 rounded-full mr-3 neon-glow"></i>
+            <span class="mr-1">Phone:</span>
+            <a href="tel:+923441278285" class="text-white hover:text-[#91e0ff]" target="_blank">+92 3441278285</a>
+          </li>
+          <li class="mt-[25px] text-[20px] flex items-center">
+            <i class="fas fa-paper-plane p-4 rounded-full mr-3 neon-glow"></i>
+            <span class="mr-1">Email:</span>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=azana1443@gmail.com" target="_blank"
+              class="text-white hover:text-[#91e0ff]">azana1443@gmail.com</a>
+          </li>
+        </ul>
+        <ul class="list-none text-center">
+          <li class="inline-block">
+            <a href="https://www.facebook.com/share/1GaDu2AgJX/" target="_blank">
+              <i
+                class="fab fa-facebook p-4 text-[22px] rounded-[22%] mx-2 cursor-pointer transition-all duration-500 neon-glow"></i>
+            </a>
+          </li>
+          <li class="inline-block">
+            <a href="https://www.instagram.com/digi_texa/" target="_blank">
+              <i
+                class="fab fa-instagram p-4 text-[22px] rounded-[22%] mx-2 cursor-pointer transition-all duration-500 neon-glow"></i>
+            </a>
+          </li>
+          <li class="inline-block">
+            <a href="https://www.linkedin.com/in/digitexa-66b1a737a/" target="_blank">
+              <i
+                class="fab fa-linkedin-in p-4 text-[22px] rounded-[22%] mx-2 cursor-pointer transition-all duration-500 neon-glow"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+    <!-- FOOTER (CONTACT US) -->
+    <!-- Whatsapp floating button -->
+    <div id="wpfloat" class="whatsapp-float">
+      <a href="https://wa.me/923441278285" target="_blank" class="whatsapp-label">Chat with us</a>
+      <a href="https://wa.me/923441278285" target="_blank">
+        <img src="Images/whatsapp.png" alt="Whatsapp" />
+      </a>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // Mobile menu toggle
+    const burger = document.getElementById("burger");
+    const mobileMenu = document.getElementById("mobileMenu");
+    burger.addEventListener("click", () => {
+      const closed = mobileMenu.classList.contains("opacity-0");
+      if (closed) {
+        mobileMenu.classList.remove(
+          "opacity-0",
+          "scale-y-0",
+          "pointer-events-none"
+        );
+        mobileMenu.classList.add("opacity-100", "scale-y-100");
+      } else {
+        mobileMenu.classList.remove("opacity-100", "scale-y-100");
+        mobileMenu.classList.add(
+          "opacity-0",
+          "scale-y-0",
+          "pointer-events-none"
+        );
+      }
+    });
+
+    // Counters animation
+    function animateCounter(counter) {
+      const target = +counter.getAttribute("data-target");
+      let current = 0;
+      const increment = Math.ceil(target / 100);
+      function updateCounter() {
+        if (current < target) {
+          current += increment;
+          counter.textContent = current > target ? target : current;
+          requestAnimationFrame(updateCounter);
+        } else {
+          counter.textContent = target;
+        }
+      }
+      updateCounter();
+    }
+    const counters = document.querySelectorAll(".counter");
+    const counterObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 1 }
+    );
+    counters.forEach((counter) => counterObserver.observe(counter));
+
+    // Fade-in animations
+    document.addEventListener("DOMContentLoaded", () => {
+      const fadeElements = document.querySelectorAll(".fade-in-up");
+      const fadeObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+            } else {
+              entry.target.classList.remove("visible"); // Reset when out of view
+            }
+          });
+        },
+        { threshold: 0.2 }
+      );
+      fadeElements.forEach((el) => fadeObserver.observe(el));
+    });
+
+    // Vanta background initialization
+    document.addEventListener("DOMContentLoaded", function () {
+      VANTA.NET({
+        el: "#vanta-bg",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.0,
+        minWidth: 200.0,
+        scale: 1.0,
+        scaleMobile: 1.0,
+        color: 0x0582b4,
+        backgroundColor: 0x02263f,
+        points: 10.0,
+        maxDistance: 20.0,
+        spacing: 15.0,
+        showDots: true,
+      });
+    });
+
+    // Replace with your Google Apps Script Web App URL
+    const scriptURL =
+      "https://script.google.com/macros/s/AKfycbxwUPOl0rHP_aqv0okLv930KcQ1l8dgROtCrmNrSfiPUU8lNyNxJTBZ3uO3Fququ1tNtA/exec";
+
+    // Submit review
+    document
+      .getElementById("reviewForm")
+      .addEventListener("submit", function (e) {
+        e.preventDefault();
+        const name = document.getElementById("name").value.trim();
+        const rating = document.getElementById("rating").value;
+        const review = document.getElementById("review").value.trim();
+
+        if (!name || !rating || !review) {
+          alert("Please fill out all fields.");
+          return;
+        }
+
+        // Show instantly in the DOM
+        const container = document.getElementById("reviewsList");
+        container.insertAdjacentHTML(
+          "afterbegin",
+          `
+    <div class="review">
+      <strong>${name}</strong> <span class="rating">${rating}</span>
+      <p>${review}</p>
+      <small>${new Date().toLocaleString()}</small>
+    </div>
+    `
+        );
+
+        // Send to Google Sheets in the background (no waiting)
+        fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify({ name, rating, review }),
+        }).catch((err) => console.error("Error saving review:", err));
+
+        this.reset();
+      });
+
+    // Load reviews from Google Sheets (cache-busting)
+    async function loadReviews() {
+      try {
+        const res = await fetch(`${scriptURL}?t=${Date.now()}`);
+        const data = await res.json();
+        const container = document.getElementById("reviewsList");
+        container.innerHTML = "";
+        data.reverse().forEach((r) => {
+          container.innerHTML += `
+        <div class="review">
+          <strong>${r.name}</strong> <span class="rating">${r.rating}</span>
+          <p>${r.review}</p>
+          <small>${new Date(r.date).toLocaleString()}</small>
+        </div>
+      `;
+        });
+      } catch (err) {
+        console.error("Error loading reviews:", err);
+      }
+    }
+
+    (async function initPage() {
+      await loadReviews(); // Wait until reviews are fetched
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("wpfloat").style.display = "flex";
+      document.getElementById("afterloader").style.display = "block";
+
+      // Restore scrolling
+      document.body.classList.add("loaded");
+    })();
+  </script>
+</body>
+
+</html>
